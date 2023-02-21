@@ -47,6 +47,8 @@ pub enum Branch {
         size: u32,
     },
     TerminateInvocation,
+    DemoteToHelperInvocation,
+    DemoteToHelperInvocationEXT,
 }
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[allow(clippy::upper_case_acronyms)]
@@ -1341,6 +1343,12 @@ pub enum Op {
     SubgroupAllEqualKHR {
         predicate: spirv::Word,
     },
+    GroupNonUniformRotateKHR {
+        execution: spirv::Word,
+        value: spirv::Word,
+        delta: spirv::Word,
+        cluster_size: Option<spirv::Word>,
+    },
     SubgroupReadInvocationKHR {
         value: spirv::Word,
         index: spirv::Word,
@@ -1365,7 +1373,17 @@ pub enum Op {
     ConvertUToAccelerationStructureKHR {
         accel: spirv::Word,
     },
+    SDot {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
     SDotKHR {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
+    UDot {
         vector_1: spirv::Word,
         vector_2: spirv::Word,
         packed_vector_format: Option<spirv::PackedVectorFormat>,
@@ -1375,9 +1393,20 @@ pub enum Op {
         vector_2: spirv::Word,
         packed_vector_format: Option<spirv::PackedVectorFormat>,
     },
+    SUDot {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
     SUDotKHR {
         vector_1: spirv::Word,
         vector_2: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
+    SDotAccSat {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        accumulator: spirv::Word,
         packed_vector_format: Option<spirv::PackedVectorFormat>,
     },
     SDotAccSatKHR {
@@ -1386,7 +1415,19 @@ pub enum Op {
         accumulator: spirv::Word,
         packed_vector_format: Option<spirv::PackedVectorFormat>,
     },
+    UDotAccSat {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        accumulator: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
     UDotAccSatKHR {
+        vector_1: spirv::Word,
+        vector_2: spirv::Word,
+        accumulator: spirv::Word,
+        packed_vector_format: Option<spirv::PackedVectorFormat>,
+    },
+    SUDotAccSat {
         vector_1: spirv::Word,
         vector_2: spirv::Word,
         accumulator: spirv::Word,
@@ -1477,12 +1518,205 @@ pub enum Op {
     ReadClockKHR {
         scope: spirv::Word,
     },
+    HitObjectRecordHitMotionNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        instance_id: spirv::Word,
+        primitive_id: spirv::Word,
+        geometry_index: spirv::Word,
+        hit_kind: spirv::Word,
+        sbt_record_offset: spirv::Word,
+        sbt_record_stride: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        current_time: spirv::Word,
+        hit_object_attributes: spirv::Word,
+    },
+    HitObjectRecordHitWithIndexMotionNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        instance_id: spirv::Word,
+        primitive_id: spirv::Word,
+        geometry_index: spirv::Word,
+        hit_kind: spirv::Word,
+        sbt_record_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        current_time: spirv::Word,
+        hit_object_attributes: spirv::Word,
+    },
+    HitObjectRecordMissMotionNV {
+        hit_object: spirv::Word,
+        sbt_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        current_time: spirv::Word,
+    },
+    HitObjectGetWorldToObjectNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetObjectToWorldNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetObjectRayDirectionNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetObjectRayOriginNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectTraceRayMotionNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        ray_flags: spirv::Word,
+        cullmask: spirv::Word,
+        sbt_record_offset: spirv::Word,
+        sbt_record_stride: spirv::Word,
+        miss_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        time: spirv::Word,
+        payload: spirv::Word,
+    },
+    HitObjectGetShaderRecordBufferHandleNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetShaderBindingTableRecordIndexNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectRecordEmptyNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectTraceRayNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        ray_flags: spirv::Word,
+        cullmask: spirv::Word,
+        sbt_record_offset: spirv::Word,
+        sbt_record_stride: spirv::Word,
+        miss_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        payload: spirv::Word,
+    },
+    HitObjectRecordHitNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        instance_id: spirv::Word,
+        primitive_id: spirv::Word,
+        geometry_index: spirv::Word,
+        hit_kind: spirv::Word,
+        sbt_record_offset: spirv::Word,
+        sbt_record_stride: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        hit_object_attributes: spirv::Word,
+    },
+    HitObjectRecordHitWithIndexNV {
+        hit_object: spirv::Word,
+        acceleration_structure: spirv::Word,
+        instance_id: spirv::Word,
+        primitive_id: spirv::Word,
+        geometry_index: spirv::Word,
+        hit_kind: spirv::Word,
+        sbt_record_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+        hit_object_attributes: spirv::Word,
+    },
+    HitObjectRecordMissNV {
+        hit_object: spirv::Word,
+        sbt_index: spirv::Word,
+        origin: spirv::Word,
+        t_min: spirv::Word,
+        direction: spirv::Word,
+        t_max: spirv::Word,
+    },
+    HitObjectExecuteShaderNV {
+        hit_object: spirv::Word,
+        payload: spirv::Word,
+    },
+    HitObjectGetCurrentTimeNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetAttributesNV {
+        hit_object: spirv::Word,
+        hit_object_attribute: spirv::Word,
+    },
+    HitObjectGetHitKindNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetPrimitiveIndexNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetGeometryIndexNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetInstanceIdNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetInstanceCustomIndexNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetWorldRayDirectionNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetWorldRayOriginNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetRayTMaxNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectGetRayTMinNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectIsEmptyNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectIsHitNV {
+        hit_object: spirv::Word,
+    },
+    HitObjectIsMissNV {
+        hit_object: spirv::Word,
+    },
+    ReorderThreadWithHitObjectNV {
+        hit_object: spirv::Word,
+        hint: Option<spirv::Word>,
+        bits: Option<spirv::Word>,
+    },
+    ReorderThreadWithHintNV {
+        hint: spirv::Word,
+        bits: spirv::Word,
+    },
     ImageSampleFootprintNV {
         sampled_image: spirv::Word,
         coordinate: spirv::Word,
         granularity: spirv::Word,
         coarse: spirv::Word,
         image_operands: Option<(spirv::ImageOperands, Vec<spirv::Word>)>,
+    },
+    EmitMeshTasksEXT {
+        group_count_x: spirv::Word,
+        group_count_y: spirv::Word,
+        group_count_z: spirv::Word,
+        payload: Option<spirv::Word>,
+    },
+    SetMeshOutputsEXT {
+        vertex_count: spirv::Word,
+        primitive_count: spirv::Word,
     },
     GroupNonUniformPartitionNV {
         value: spirv::Word,
@@ -1570,7 +1804,6 @@ pub enum Op {
     },
     BeginInvocationInterlockEXT,
     EndInvocationInterlockEXT,
-    DemoteToHelperInvocationEXT,
     IsHelperInvocationEXT,
     ConvertUToImageNV {
         operand: spirv::Word,
@@ -2546,6 +2779,16 @@ pub enum Op {
     LoopControlINTEL {
         loop_control_parameters: Vec<u32>,
     },
+    AliasDomainDeclINTEL {
+        name: Option<spirv::Word>,
+    },
+    AliasScopeDeclINTEL {
+        alias_domain: spirv::Word,
+        name: Option<spirv::Word>,
+    },
+    AliasScopeListDeclINTEL {
+        alias_scope1_alias_scope2: Vec<spirv::Word>,
+    },
     FixedSqrtINTEL {
         input_type: Token<Type>,
         input: spirv::Word,
@@ -2731,5 +2974,55 @@ pub enum Op {
         memory: spirv::Word,
         semantics: spirv::Word,
         value: spirv::Word,
+    },
+    ControlBarrierArriveINTEL {
+        execution: spirv::Word,
+        memory: spirv::Word,
+        semantics: spirv::Word,
+    },
+    ControlBarrierWaitINTEL {
+        execution: spirv::Word,
+        memory: spirv::Word,
+        semantics: spirv::Word,
+    },
+    GroupIMulKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupFMulKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupBitwiseAndKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupBitwiseOrKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupBitwiseXorKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupLogicalAndKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupLogicalOrKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
+    },
+    GroupLogicalXorKHR {
+        execution: spirv::Word,
+        operation: spirv::GroupOperation,
+        x: spirv::Word,
     },
 }
